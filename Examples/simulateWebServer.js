@@ -30,7 +30,7 @@ function SetApp(app) {
     app.get('/www/js/*', function(Request, Response) {
         try {
 
-            ServeCompileFile('/home/johnrnelson/WEBSERVER/johnrnelson.com/html/www/js/', '/www/js/', Request, Response);
+            ServeCompileFile('/home/ubuntu/WEBSERVER/ubuntu.com/html/www/js/', '/www/js/', Request, Response);
         }
         catch (e) {
             Server.BugLog.Warn('Compile file from /www/js/*  ');
@@ -45,7 +45,7 @@ function SetApp(app) {
 
         try {
 
-            ServeCompileFile('/home/johnrnelson/WEBSERVER/johnrnelson.com/html/www/DESKTOP/', '/SYSx/', Request, Response);
+            ServeCompileFile('/home/ubuntu/WEBSERVER/ubuntu.com/html/www/DESKTOP/', '/SYSx/', Request, Response);
         }
         catch (e) {
             console.log(e);

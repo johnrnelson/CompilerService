@@ -299,13 +299,14 @@ function GetFilePaths(FilePath) {
 
 
 function WatchAFolder(FolderPath2Watch) {
-
-
-
+    /*
+        Read the documentation at https://github.com/paulmillr/chokidar  
+    */
 
     var watcher = chokidar.watch(FolderPath2Watch, {
         ignored: /node_modules|-min.js|\.git/,
         persistent: true,
+        depth: 30,
         // followSymlinks: false,
         // useFsEvents: false,
         // usePolling: false

@@ -11,6 +11,8 @@
 var fs = require("fs");
 var path = require("path");
 
+var chokidar = require('chokidar');
+
 var ServiceAPI = {
     /*
         Because this task is so processor intensive, we only do one at a time...
@@ -51,8 +53,6 @@ var ServiceAPI = {
 
             function GetNextFile2Compile() {
                 for (var f in ServiceAPI.CompilerList) {
-                    // debugger;
-                    // var file2Compile = ServiceAPI.CompilerList[f];
                     return f;
                 }
             };
@@ -68,17 +68,13 @@ var ServiceAPI = {
                 }
                 var nextFilePathObj = ServiceAPI.CompilerList[nextFilePath];
 
-
-                // return;
-                // debugger;
                 CompileTheFile(path.basename(nextFilePath), path.basename(nextFilePathObj.p), function(error) {
                     if (error) {
                         debugger;
                     }
                     delete ServiceAPI.CompilerList[nextFilePath];
-                    BugLog.Info('Finished compiling:\r\n' + nextFilePath + '\r\n' + nextFilePathObj.p);
+                    // BugLog.Info('Finished compiling:' + nextFilePath ); //+ '\r\n\t\t' + nextFilePathObj.p
                     WorkNextFile();
-                    // ServiceAPI.IsCompiling = false;
                 });
 
             }
@@ -88,11 +84,11 @@ var ServiceAPI = {
                 /*
                 https://github.com/dcodeIO/ClosureCompiler.js
                 */
- 
+
 
 
                 var ClosureCompiler = require("closurecompiler");
-                // console.log(FilePath_Target);
+
                 // debugger;
                 ClosureCompiler.compile(
                     FilePath_Target, {
@@ -116,24 +112,15 @@ var ServiceAPI = {
                     },
                     function(error, result) {
                         if (result) {
-                            // Write result to file
-                            // Display error (warnings from stderr)
-                            console.log('\r\n\t****  Finished BUilding FILE ****\r\n');
-                            // console.log(FilePath_Destination);
-                            // console.log(result.length);
-
-                            // debugger;
-                            // fs.writeFileSync(FilePath_Destination, result, 'utf8');
-
+                            // BugLog.Info('Finished Building FILE :' + FilePath_Destination);
 
                             fs.writeFile(FilePath_Destination, result, function(err) {
                                 // if (err) throw err;
                                 if (err) {
                                     debugger;
+                                    BugLog.Warn('Error Writing FILE :' + FilePath_Destination);
                                 }
                                 else {
-                                    console.log("Wrote THAT FILE", FilePath_Destination);
-                                    // process.exit(0);
                                     ServiceAPI.IsCompiling = false;
                                     Compiled();
 
@@ -145,7 +132,7 @@ var ServiceAPI = {
                         else {
                             // Display error...
                             debugger;
-                            console.log('ERROR!!!\r\n', error);
+                            BugLog.Warn('ERROR!!!\r\n', error);
                             // process.exit(-1);
                             ServiceAPI.IsCompiling = false;
                             Compiled(error);
@@ -161,7 +148,7 @@ var ServiceAPI = {
     }
 
 };
-// exports.ServiceAPI = ServiceAPI;
+
 
 
 
@@ -216,7 +203,7 @@ function ServeCompileFile(isDebugMode, FilePath, OnFile) {
                             debugger;;
                         }
                         else {
- 
+
                             OnFile(null, FileNameExt, data);
                             debugger;;
                         };
@@ -259,11 +246,9 @@ function ServeCompileFile(isDebugMode, FilePath, OnFile) {
                                 var diffTime = MinFileEdit - SourceFileEdit;
 
                                 if (diffTime < 0) {
-
-                                    // console.log('NEW COMPIER --',  regFile,  minFile);
                                     ServiceAPI.Compiler(regFile, minFile);
                                 }
-                   
+
 
                                 OnFile(null, FileNameExt, data);
 
@@ -293,3 +278,84 @@ function ServeCompileFile(isDebugMode, FilePath, OnFile) {
 };
 
 exports.ServeCompileFile = ServeCompileFile;
+
+//.............................................................................
+
+
+
+
+function GetFilePaths(FilePath) {
+    var returnFilePaths = {
+        FullPath: path.normalize(FilePath),
+        FileName: path.basename(FilePath, '.js'),
+        FileNameExt: path.extname(FilePath),
+        FolderPath: path.dirname(FilePath)
+    };
+    returnFilePaths.MinFile = returnFilePaths.FolderPath + '/' + returnFilePaths.FileName + '-min.js';
+
+    // returnFilePaths.RegFile = path.normalize(FilePath);
+    return returnFilePaths;
+}
+
+
+function WatchAFolder(FolderPath2Watch) {
+
+
+
+
+    var watcher = chokidar.watch(FolderPath2Watch, {
+        ignored: /node_modules|-min.js|\.git/,
+        persistent: true,
+        // followSymlinks: false,
+        // useFsEvents: false,
+        // usePolling: false
+    });
+    watcher.on('unlink', (event, path) => {
+        // BugLog.Warn(event, path);
+    });
+    watcher.on('add', (path) => {
+        var fPath = GetFilePaths(path);
+
+
+        fs.stat(fPath.FullPath, function(err, stats) {
+            fPath.FullPathEditDate = stats.mtime.getTime();
+            fs.stat(fPath.MinFile, function(err, stats) {
+
+                if (err) {
+                    // debugger;;
+                    BugLog.Info('No Min File Found : ' + fPath.MinFile);
+                    ServiceAPI.Compiler(fPath.FullPath, fPath.MinFile);
+                }
+                else {
+                    var MinFileEdit = stats.mtime.getTime();
+
+                    var diffTime = MinFileEdit - fPath.FullPathEditDate;
+
+                    if (diffTime < 0) {
+
+                        BugLog.Info('Min File Time Diff : ' + diffTime + ' |  ' + fPath.FullPath);
+                        ServiceAPI.Compiler(fPath.FullPath, fPath.MinFile);
+
+                    }
+                    else {
+                        // BugLog.Info('File is OK-->'+ fPath.FullPath);
+                    }
+                };
+
+            });
+
+        });
+    });
+    watcher.on('change', (path, stats) => {
+        if (stats) {
+            var fPath = GetFilePaths(path);
+            BugLog.Info('File changed so compiling ==> ' + fPath.FullPath);
+            ServiceAPI.Compiler(fPath.FullPath, fPath.MinFile);
+        }
+        // console.log(`File ${path} changed size to ${stats.size}`);
+    });
+    watcher.on('ready', () => {
+        BugLog.Info('File Watcher is Ready!');
+    })
+}
+exports.WatchAFolder = WatchAFolder;

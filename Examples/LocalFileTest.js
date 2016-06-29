@@ -21,7 +21,6 @@ CompService.Service.API.ServeCompileFile(false,TARGETFilePath, function(err, Fil
     }
     else {
         console.log('The type of file:',FileType);
-        console.log('CONTENTS-->',FileContents);
-
+        console.log('CONTENTS\r\n=========================\r\n',FileContents);
     } 
 });

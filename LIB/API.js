@@ -304,6 +304,7 @@ function WatchAFolder(FolderPath2Watch) {
     */
 
     var watcher = chokidar.watch(FolderPath2Watch, {
+        
         ignored: /node_modules|-min.js|\.git/,
         persistent: true,
         depth: 30,

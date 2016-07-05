@@ -26,25 +26,25 @@ Good old NPM to the resuce!
 Sample code....
 
     var servFile = '**path to file**';
-    CompilerService.Service.API.ServeCompileFile(isDebugMode, servFile, function(err, FileType, FileContents) {
-        if (err) {
-            console.log(err);
-            Response.end('');
-        }
-        else {
-            if (FileType == '.js') {
-                Response.writeHead(200, {
-                    "Content-Type": "application/javascript"
-                });
+    CompilerService.Service.API.ServeCompileFile(isDebugMode, servFile, 
+        function(err, FileType, FileContents) {
+            if (err) {
+                console.log(err);
+                Response.end('');
             }
             else {
-                Response.writeHead(200, {
-                    "Content-Type": "text/html"
-                });
+                if (FileType == '.js') {
+                    Response.writeHead(200, {
+                        "Content-Type": "application/javascript"
+                    });
+                }
+                else {
+                    Response.writeHead(200, {
+                        "Content-Type": "text/html"
+                    });
+                }
+                Response.end(FileContents);
             }
-            Response.end(FileContents);
-    
-        }
     });
     
 That should be it.  :-)

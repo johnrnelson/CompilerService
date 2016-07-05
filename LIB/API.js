@@ -185,7 +185,7 @@ function ServeCompileFile(isDebugMode, FilePath, OnFile) {
             // debugger;
             if (err) {
                 OnFile(err, FileNameExt, null);
-                debugger;;
+                // debugger;;
 
             }
             else {
@@ -197,15 +197,16 @@ function ServeCompileFile(isDebugMode, FilePath, OnFile) {
 
 
                 if (isDebugMode) {
-                    fs.readFile(FolderPath + regFile, 'utf8', function(err, data) {
+                    fs.readFile(regFile, 'utf8', function(err, data) {
                         if (err) {
+                            // console.log(regFile);
+                            // debugger;;
                             OnFile(err, FileNameExt, null);
-                            debugger;;
                         }
                         else {
 
                             OnFile(null, FileNameExt, data);
-                            debugger;;
+                            // debugger;;
                         };
                     });
                 }
@@ -271,7 +272,7 @@ function ServeCompileFile(isDebugMode, FilePath, OnFile) {
     }
     catch (errCmpFile) {
         debugger;;
-        OnFile(err);
+        OnFile(errCmpFile);
     }
 
 

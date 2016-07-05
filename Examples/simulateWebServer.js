@@ -5,19 +5,20 @@ var CompService = require("../index");
  
 
 
-var TARGETFOLDER = '~/workspace/TESTFILES/';
-var TARGETFile = 'testcomp.js';
+var TARGETFOLDER = '/home/ubuntu/workspace/TESTFILES/';
+var TARGETFile = 'testcomp.jsx';
 var TARGETFilePath = TARGETFOLDER + TARGETFile;
 
-CompService.ServeCompileFile(TARGETFilePath,  function(err, FileType, FileContents) {
+CompService.Service.API.ServeCompileFile(true,TARGETFilePath,  function(err, FileType, FileContents) {
     if (err) {
-        Server.BugLog.Warn('File ERROR-->' + TARGETFilePath);
-        Server.BugLog.Warn(err);
+        console.log('File ERROR-->' + TARGETFilePath);
+        console.log(err);
     }
     else {
-        Server.BugLog.Info(FileType, FileContents);
+        console.log(FileType, FileContents);
 
     }
+    process.exit(0);
 });
 
  

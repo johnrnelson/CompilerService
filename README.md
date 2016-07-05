@@ -20,6 +20,9 @@ Good old NPM to the resuce!
 
     npm install git+https://git@github.com/johnrnelson/CompilerService.git --save
  
+Then install the Google Closure Compiler.
+
+    npm install closurecompiler -g
  
  
 ## Using

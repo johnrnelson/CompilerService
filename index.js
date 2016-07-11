@@ -13,6 +13,7 @@ var Service={
 var buglog = require("buglog");
 global.BugLog = buglog.Config({
      StackDepth: 6,
+     RootFolder: __dirname,
     //  ShowDebugInfo: true,
      OnLog: function(LogRecord) {
           return;

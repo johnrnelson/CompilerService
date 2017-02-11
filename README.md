@@ -1,3 +1,10 @@
+<h1>This is no longer needed.</h1>
+Use this NPM instead.
+
+https://github.com/google/closure-compiler-js
+
+
+
 # CompilerService
 Compiler service for javascript
  
